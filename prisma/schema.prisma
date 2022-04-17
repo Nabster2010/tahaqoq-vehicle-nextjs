@@ -1,0 +1,289 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // provider = "postgresql"
+  // url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// enum CustomerType{
+//   INDIVIDUAL
+//   COMPANY
+// }
+
+// enum VehicleCondition{
+//   NEW
+//   USED
+// }
+
+// enum VehicleCategory{
+//   PASSENGER
+//   MOTORCYCLE
+//   TRUCK
+//   BUS
+//   VAN
+//   OTHER
+// }
+
+// enum FuelType{
+//   PETROL
+//   DIESEL
+//   ELECTRIC
+//   OTHER
+// }
+
+model Customer {
+  id           Int       @id() @default(autoincrement())
+  name         String
+  email        String
+  phone        String
+  address      String
+  website      String
+  taxId        String
+  customerType String    @default("INDIVIDUAL") // TODO: enum
+  vehicles     Vehicle[]
+}
+
+model VehicleManufacture {
+  id           Int           @id @default(autoincrement())
+  name         String?
+  country      String?
+  vehicleTypes VehicleType[]
+}
+
+model VehicleType {
+  id             Int                @id @default(autoincrement())
+  name           String?
+  manufacturer   VehicleManufacture @relation(fields: [manufacturerId], references: [id])
+  manufacturerId Int 
+  vehiclesInfo VehicleInfo[]
+
+}
+
+model Color {
+  id    Int     @id @default(autoincrement())
+  name  String?
+  tName String?
+  vehiclesInfo VehicleInfo[]
+}
+
+model Vehicle {
+  id          Int      @id @default(autoincrement())
+  vin         String?
+  reqNo       String?
+  reqDate     String?
+  bayanNo     String?
+  bayanDate   String?
+  port        String? // TODO: add enum
+  paymentType String?  @default("CARD") // TODO: add enum
+  price       Int?
+  tax         Int?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  customerId  Int?
+  createdAt   DateTime? @default(now())
+  vehicleInfo VehicleInfo? 
+  visualInspection VisualInspection?
+  emissionTest Emission?
+  highBeamLevel HighBeamLevel?
+  sideSlip      SideSlip?
+  suspensionTest    Suspension?
+  brakeTest     Brake?
+}
+
+model VehicleInfo {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId   Int @unique
+  color       Color    @relation(fields: [colorId], references: [id])
+  colorId     Int
+  year        String
+  VehicleType VehicleType @relation(fields: [vehicleTypeId], references: [id])
+  vehicleTypeId Int
+  category    String @default("PASSENGER") // TODO: add enum
+  condition   String @default("USED") // TODO: add enum
+  fuelType    String @default("PETROL") // TODO: add enum
+  engine      String?
+  engineSize  String?
+  gear        String? @default("AUTOMATIC") // TODO: add enum
+  mileage     String
+  seats       String
+  createdAt   DateTime? @default(now())
+}
+
+model VisualInspection {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int @unique
+  conformityCertificate      Int? @default(1)
+  isTaxi          Int? @default(1)
+  isArmoured      Int? @default(1)
+  isSalvage       Int? @default(1)
+  isPolice        Int? @default(1)
+  vehiclePaint        Int? @default(1)
+  vehicleChassis            Int? @default(1)
+  vehiclePlate     Int? @default(1)
+  installationPoints     Int? @default(1)
+  brakeSystem     Int? @default(1)
+  wiringSystem     Int? @default(1)
+  headLights     Int? @default(1)
+  parkingLights     Int? @default(1)
+  signalLights     Int? @default(1)
+  warningLights     Int? @default(1)
+  horn                Int? @default(1)
+  windshield          Int? @default(1)
+  wipers              Int? @default(1)
+  tinting        Int? @default(1)
+  mirrors        Int? @default(1)
+  doors          Int? @default(1)
+  tires          Int? @default(1)
+  nuts           Int? @default(1)
+  dashboardLights      Int? @default(1)
+  tailLights     Int? @default(1)
+  reverseLights     Int? @default(1)
+  rearPlateLight     Int? @default(1)
+  turnSignalLights     Int? @default(1)
+  brakeLights     Int? @default(1)
+  saftyBelts      Int? @default(1)
+  vehicleBody     Int? @default(1)
+  fireExtinguisher     Int? @default(1)
+  warningTriangle     Int? @default(1)
+  spareTire     Int? @default(1)
+  rustCorrosion     Int? @default(1)
+  sunVisors     Int? @default(1)
+  ballJoints     Int? @default(1)
+  mountingBase     Int? @default(1)
+  steeringCircuit     Int? @default(1)
+  steeringRods     Int? @default(1)
+  hosesPipes     Int? @default(1)
+  brakeDiscs     Int? @default(1)
+  brakeCylinders     Int? @default(1)
+  fittings     Int? @default(1)
+  stabilizerBar     Int? @default(1)
+  frontSuspension     Int? @default(1)
+  rearSuspension     Int? @default(1)
+  frontSprings     Int? @default(1)
+  rearSprings     Int? @default(1)
+  shockAbsorbers     Int? @default(1)
+  engineMountings     Int? @default(1)
+  gearMountings     Int? @default(1)
+  transimissionParts     Int? @default(1)
+  mufflers     Int? @default(1)
+  fuelTank     Int? @default(1)
+  speedometerCable     Int? @default(1)
+  chassis     Int? @default(1)
+  floorRust     Int? @default(1)
+  oilLeaks     Int? @default(1)
+  createdAt   DateTime? @default(now())
+
+}
+
+model Emission {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int      @unique
+  co          Float?
+  hc          Int?
+  diesel      Int?
+  ppm         Int?
+  createdAt   DateTime? @default(now())
+}
+
+model HighBeamLevel {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int      @unique
+  level       Int?
+  left        Int?
+  right       Int?
+  createdAt   DateTime? @default(now())
+}
+model SideSlip {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int      @unique
+  result      Float
+  createdAt   DateTime? @default(now())
+}
+model Suspension {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int      @unique
+  fl          Int  //front left
+  fr          Int  //front right
+  rl          Int  //rear left
+  rr          Int  //rear right
+  createdAt   DateTime? @default(now())
+}
+model Brake {
+  id          Int      @id @default(autoincrement())
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
+  vehicleId   Int      @unique
+  parking     Int  //parking brake
+  front       Int  //front brake
+  rear        Int  //rear brake
+  createdAt   DateTime? @default(now())
+}
+
+
+
+
+  
+// nextauth models
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  
+  access_token       String?  
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  role          String? @default("USER")
+  password      String?
+  active        Boolean? @default(false)
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+
+
+
+
