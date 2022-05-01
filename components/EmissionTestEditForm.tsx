@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getEmmissionResult } from "../utils";
 import Indicator from "./Indicator";
 
 const EmissionTestEditForm = ({ vehicle }) => {
@@ -18,6 +19,7 @@ const EmissionTestEditForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const emissionResult = getEmmissionResult(emission, isDiesel);
     const { diesel, co, hc } = emission;
     if ((isDiesel && !diesel) || (!isDiesel && (!co || !hc))) {
       toast.error("please provide  result");
@@ -25,10 +27,10 @@ const EmissionTestEditForm = ({ vehicle }) => {
     }
 
     try {
-      const { data } = await axios.put(
-        `/api/emission/${emission.id}`,
-        emission
-      );
+      const { data } = await axios.put(`/api/emission/${emission.id}`, {
+        ...emission,
+        result: emissionResult,
+      });
       router.push(`/vehicles/${id}/result`);
       toast.success(`Emission result has been saved`);
     } catch (error) {

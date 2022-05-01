@@ -103,7 +103,7 @@ model VehicleInfo {
   color       Color    @relation(fields: [colorId], references: [id])
   colorId     Int
   year        String
-  VehicleType VehicleType @relation(fields: [vehicleTypeId], references: [id])
+  vehicleType VehicleType @relation(fields: [vehicleTypeId], references: [id])
   vehicleTypeId Int
   category    String @default("PASSENGER") // TODO: add enum
   condition   String @default("USED") // TODO: add enum
@@ -125,6 +125,7 @@ model VisualInspection {
   isArmoured      Int? @default(1)
   isSalvage       Int? @default(1)
   isPolice        Int? @default(1)
+  fuelEconomy        Int? @default(1)
   vehiclePaint        Int? @default(1)
   vehicleChassis            Int? @default(1)
   vehiclePlate     Int? @default(1)
@@ -179,6 +180,7 @@ model VisualInspection {
   chassis     Int? @default(1)
   floorRust     Int? @default(1)
   oilLeaks     Int? @default(1)
+  result        Boolean? @default(true)
   createdAt   DateTime? @default(now())
 
 }
@@ -191,6 +193,7 @@ model Emission {
   hc          Int?
   diesel      Int?
   ppm         Int?
+  result      Boolean?
   createdAt   DateTime? @default(now())
 }
 
@@ -201,13 +204,15 @@ model HighBeamLevel {
   level       Int?
   left        Int?
   right       Int?
+  result      Boolean?
   createdAt   DateTime? @default(now())
 }
 model SideSlip {
   id          Int      @id @default(autoincrement())
   vehicle     Vehicle  @relation(fields: [vehicleId], references: [id],onDelete: Cascade)
   vehicleId   Int      @unique
-  result      Float
+  reading      Float?
+  result      Boolean?
   createdAt   DateTime? @default(now())
 }
 model Suspension {
@@ -218,6 +223,7 @@ model Suspension {
   fr          Int  //front right
   rl          Int  //rear left
   rr          Int  //rear right
+  result      Boolean?
   createdAt   DateTime? @default(now())
 }
 model Brake {
@@ -227,6 +233,7 @@ model Brake {
   parking     Int  //parking brake
   front       Int  //front brake
   rear        Int  //rear brake
+  result      Boolean?
   createdAt   DateTime? @default(now())
 }
 

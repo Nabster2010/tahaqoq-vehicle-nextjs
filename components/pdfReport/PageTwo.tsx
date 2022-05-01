@@ -1,962 +1,13 @@
-import {
-  Document,
-  Page,
-  Font,
-  Text,
-  Image,
-  View,
-  StyleSheet,
-  PDFViewer,
-} from "@react-pdf/renderer";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { getVehicleById } from "../../../app/reducer/vehicleSlice";
-import NotFound from "../../../components/NotFound";
-import Spinner from "../../../components/Spinner";
-import qr from "../../../public/images/qr.png";
-import { addLeadingZeros } from "../../../utils";
+import { Text, View } from "@react-pdf/renderer";
 
-Font.register({
-  family: "Open Sans",
-  src: "https://fonts.gstatic.com/s/roboto/v29/KFOmCnqEu92Fr1Me5Q.ttf",
-  fontWeight: "normal",
-});
-Font.register({
-  family: "Open Sans",
-  src: "https://fonts.gstatic.com/s/roboto/v29/KFOlCnqEu92Fr1MmEU9vAw.ttf",
-  fontWeight: "medium",
-});
-Font.register({
-  family: "Open Sans",
-  src: "https://fonts.gstatic.com/s/roboto/v29/KFOlCnqEu92Fr1MmWUlvAw.ttf",
-  fontWeight: "bold",
-});
-Font.register({
-  family: "Noto Naskh Arabic",
-  src: "https://fonts.gstatic.com/s/notonaskharabic/v16/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwvc5krA.ttf",
-  fontWeight: "normal",
-});
-Font.register({
-  family: "Noto Naskh Arabic",
-  src: "https://fonts.gstatic.com/s/notonaskharabic/v16/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwj85krA.ttf",
-  fontWeight: "medium",
-});
-Font.register({
-  family: "Noto Naskh Arabic",
-  src: "https://fonts.gstatic.com/s/notonaskharabic/v16/RrQ5bpV-9Dd1b1OAGA6M9PkyDuVBePeKNaxcsss0Y7bwWslkrA.ttf",
-  fontWeight: "bold",
-});
-// Create styles
-const styles = StyleSheet.create({
-  page: {
-    backgroundColor: "#ffffff",
-    color: "#000",
-    padding: 20,
-    fontSize: 16,
-    fontFamily: "Noto Naskh Arabic",
-  },
-  section: {
-    margin: 10,
-    padding: 10,
-  },
-  header: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    borderBottom: "1px solid #000",
-    paddingBottom: 10,
-  },
-  logo: {
-    width: 70,
-  },
-  text: {
-    fontFamily: "Noto Naskh Arabic",
-    textAlign: "right",
-  },
-
-  viewer: {
-    width: "100vw", //the pdf viewer will take up all of the width and height
-    height: "100vh",
-  },
-});
-
-// Create Document Component
-function Report() {
-  const dispatch = useAppDispatch();
-  const { loading, error, vehicle } = useAppSelector((state) => state.vehicle);
-  const router = useRouter();
-  const { id } = router.query;
-  useEffect(() => {
-    if (router.isReady && id) {
-      dispatch(getVehicleById(id));
+const PageTwo = ({ vehicle }) => {
+  const { visualInspection } = vehicle;
+  const result = (test) => {
+    if (visualInspection?.[test] === 1) {
+      return "Pass";
     }
-  }, [id, dispatch, router.isReady]);
-  if (loading) return <Spinner />;
-  if (error) return <p>error </p>;
-  if (!vehicle) return <NotFound />;
-  return (
-    <PDFViewer style={styles.viewer}>
-      <Document language="arabic">
-        <Page size="A4" style={styles.page}>
-          <View fixed>
-            <Header />
-          </View>
-          <InfoSection />
-          <ResultSection />
-          <View break />
-          <PageTwo />
-          <View break />
-          <PageThree />
-          <View fixed>
-            <Footer />
-          </View>
-        </Page>
-      </Document>
-    </PDFViewer>
-  );
-}
-
-export default Report;
-
-const Header = () => {
-  return (
-    <View style={styles.header}>
-      <View style={{ flex: 1 }}>
-        <Image style={styles.logo} src={"/images/logo.png"} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text
-          style={{
-            fontFamily: "Open Sans",
-            fontWeight: "medium",
-            display: "flex",
-            alignSelf: "center",
-            fontSize: 14,
-          }}
-        >
-          INSPECTION REPORT
-        </Text>
-        <Text
-          style={{
-            display: "flex",
-            alignSelf: "center",
-            fontWeight: "medium",
-            fontSize: 14,
-          }}
-        >
-          تقرير الفحص
-        </Text>
-        <View
-          style={{
-            display: "flex",
-
-            flexDirection: "row-reverse",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              display: "flex",
-              alignSelf: "center",
-              fontWeight: "medium",
-              fontSize: 14,
-            }}
-          >
-            رقم التقرير
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Open Sans",
-              fontWeight: "medium",
-              display: "flex",
-              alignSelf: "center",
-              fontSize: 12,
-            }}
-          >
-            TD0000 :
-          </Text>
-        </View>
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row-reverse",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              display: "flex",
-              alignSelf: "center",
-              fontWeight: "medium",
-              fontSize: 14,
-            }}
-          >
-            : تاريخ
-          </Text>
-          <Text
-            style={{
-              fontFamily: "Open Sans",
-              fontWeight: "medium",
-              display: "flex",
-              alignSelf: "center",
-              fontSize: 12,
-            }}
-          >
-            DD/MM/YYYY
-          </Text>
-        </View>
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text
-          style={[
-            styles.text,
-            { display: "flex", alignSelf: "flex-end", fontSize: 14 },
-          ]}
-        >
-          شركة التحقق الدولية لفحص السيارات
-        </Text>
-        <Text
-          style={[
-            styles.text,
-            {
-              display: "flex",
-              alignSelf: "flex-start",
-              fontFamily: "Open Sans",
-              fontWeight: "normal",
-              fontSize: 12,
-            },
-          ]}
-        >
-          Tahaqoq International Vehicles.
-        </Text>
-        <Text
-          style={[
-            styles.text,
-            {
-              display: "flex",
-              alignSelf: "flex-start",
-              fontFamily: "Open Sans",
-              fontWeight: "normal",
-              fontSize: 12,
-            },
-          ]}
-        >
-          Inspection Center -Dammam
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-const InfoSection = () => {
-  return (
-    <View
-      style={{
-        marginTop: 20,
-        fontSize: 12,
-        fontWeight: "medium",
-      }}
-    >
-      <View style={{ display: "flex", flexDirection: "row-reverse" }}>
-        <View
-          style={{
-            paddingRight: 10,
-            border: "1px solid gray",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            height: 30,
-            flex: 1,
-          }}
-        >
-          <Text style={{ fontWeight: "bold" }}>رقم الهيكل</Text>
-        </View>
-        <View
-          style={{
-            paddingRight: 10,
-            border: "1px solid gray",
-            borderRight: 0,
-            alignItems: "flex-end",
-            justifyContent: "center",
-            flex: 3,
-          }}
-        >
-          <Text style={{ fontFamily: "Open Sans" }}>2hh32783728djsgdjgs</Text>
-        </View>
-      </View>
-      <View
-        style={{
-          marginTop: 20,
-          display: "flex",
-          flexDirection: "row",
-        }}
-      >
-        <View
-          style={{
-            marginRight: 10,
-            width: "40%",
-          }}
-        >
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> عدد الركاب</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                5
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>قراءة العداد</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                132442
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>نوع المركبة</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                CAMRY
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>الطراز</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                TOYOTA
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>الموديل</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                2019
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> اللون</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text>ابيض</Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> البلد المستورد منه</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 1,
-              }}
-            >
-              <Text style={{}}>اليابان</Text>
-            </View>
-          </View>
-        </View>
-        <View
-          style={{
-            width: "60%",
-          }}
-        >
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> مكان الفحص</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontWeight: "normal" }}>
-                شركة التحقق الدولية لفحص السيارات بالدمام
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> الجهة الطالبة للفحص</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontWeight: "normal" }}>سلوي</Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> رقم بيان الاستيراد</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                6567
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>تاريخ بيان الاستيراد</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                22/03/2022
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>تاريخ استلام المركبة</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                22/03/2022
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> رقم الاحالة</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{ fontFamily: "Open Sans", fontWeight: "normal" }}>
-                56655
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              height: 30,
-              display: "flex",
-              flexDirection: "row-reverse",
-            }}
-          >
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                height: 30,
-                flex: 1.5,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}> اسم المستورد</Text>
-            </View>
-            <View
-              style={{
-                paddingRight: 10,
-                border: "1px solid gray",
-                borderTop: 0,
-                borderRight: 0,
-                alignItems: "flex-end",
-                justifyContent: "center",
-                flex: 3,
-              }}
-            >
-              <Text style={{}}>محمد بن علي بن احمد العلي</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const ResultSection = () => {
-  return (
-    <View
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 60,
-      }}
-    >
-      <View
-        style={{
-          display: "flex",
-          flexDirection: "row-reverse",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "40%",
-        }}
-      >
-        <View style={{ height: 30, border: "1px solid gray", flex: 1 }}>
-          <Text
-            style={{
-              display: "flex",
-              alignSelf: "center",
-              fontWeight: "medium",
-            }}
-          >
-            :نتيجة الفحص
-          </Text>
-        </View>
-        <View
-          style={{
-            height: 30,
-            border: "1px solid gray",
-            flex: 1,
-            borderRight: 0,
-          }}
-        >
-          <Text
-            style={{
-              display: "flex",
-              alignSelf: "center",
-              fontWeight: "medium",
-            }}
-          >
-            مطابق
-          </Text>
-        </View>
-      </View>
-      <View
-        style={{
-          marginTop: 40,
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-          width: "100%",
-        }}
-      >
-        <View
-          style={{
-            height: 30,
-            border: "1px solid gray",
-            width: "50%",
-          }}
-        >
-          <Text
-            style={{
-              display: "flex",
-              alignSelf: "center",
-              fontWeight: "medium",
-            }}
-          >
-            المدير الفني : عبدالحكيم البريه{" "}
-          </Text>
-        </View>
-      </View>
-      <View
-        style={{
-          marginTop: 10,
-          display: "flex",
-          flexDirection: "row",
-          width: "100%",
-          height: 100,
-        }}
-      >
-        <View
-          style={{
-            flex: 1,
-            marginRight: 20,
-            backgroundColor: "#f5f5f5",
-          }}
-        ></View>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#f5f5f5",
-          }}
-        ></View>
-      </View>
-    </View>
-  );
-};
-
-const Footer = () => {
-  return (
-    <View
-      style={{
-        marginTop: 20,
-        paddingTop: 10,
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        fontSize: 10,
-        borderTop: "2px solid gray",
-      }}
-    >
-      <View style={{ flex: 1 }}>
-        <Text>TAHAQOQ CO./ TAHAQOQ VEHICLES</Text>
-        <Text>INSPECTION CENTER /DAMMAM BRANSH</Text>
-        <Text>Address:Dammam,Khalidyah,KSA</Text>
-        <Text>Mob:+96657765665</Text>
-        <Text>Email:info@tahaqoq.com</Text>
-      </View>
-      <View style={{ flex: 1 }}>
-        <Image
-          style={[styles.logo, { alignSelf: "center" }]}
-          src={"/images/logo.png"}
-        />
-        <Text style={{ alignSelf: "center", marginTop: 10 }}> صفحة ١ من ٣</Text>
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={{ display: "flex", alignSelf: "flex-end" }}>
-          شركة التحقق الدولية
-        </Text>
-        <Text style={{ display: "flex", alignSelf: "flex-end" }}>
-          مركز فحص السيارات -الدمان
-        </Text>
-        <Text style={{ display: "flex", alignSelf: "flex-end" }}>
-          العنوان :الدمام -الخالدية
-        </Text>
-        <Text style={{ display: "flex", alignSelf: "flex-end" }}>
-          Mob:+96657765665
-        </Text>
-        <Text style={{ display: "flex", alignSelf: "flex-end" }}>
-          Email:info@tahaqoq.com
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-const PageTwo = () => {
+    return "Fail";
+  };
   return (
     <View style={{ marginTop: 10 }}>
       <Text style={{ fontWeight: "bold", fontSize: 18, alignSelf: "center" }}>
@@ -984,67 +35,55 @@ const PageTwo = () => {
               fontSize: 8,
             }}
           >
+            <View style={{ height: 16, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("saftyBelts")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}>احزمة الامان</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>24</Text>
+              </View>
+            </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
               <View
                 style={{
                   border: "1px solid gray",
-                  flex: 1,
+                  borderTop: 0,
+                  flex: 2,
                   justifyContent: "center",
                   alignItems: "center",
                   height: 17,
                 }}
               >
-                <Text style={{ paddingRight: 2 }}> متطلبات القبول والرفض</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}> شهادة مطابقة خليجية</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>A</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
+                <Text>{result("fireExtinguisher")}</Text>
               </View>
               <View
                 style={{
@@ -1057,7 +96,7 @@ const PageTwo = () => {
                 }}
               >
                 <Text style={{ paddingRight: 2 }}>
-                  السيارة ليست من سيارات الاجرة
+                  طفاية الحريق ومثلث الخطر
                 </Text>
               </View>
               <View
@@ -1070,7 +109,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>B</Text>
+                <Text>25</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1083,7 +122,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("rustCorrosion")}</Text>
               </View>
               <View
                 style={{
@@ -1095,9 +134,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>
-                  السيارةلم تختم بعبارة سالفج او غرق
-                </Text>
+                <Text style={{ paddingRight: 2 }}>الصدأ والتآكل والاهتراء</Text>
               </View>
               <View
                 style={{
@@ -1109,7 +146,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>C</Text>
+                <Text>26</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1122,7 +159,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("sunVisors")}</Text>
               </View>
               <View
                 style={{
@@ -1134,9 +171,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>
-                  السيارة ليست من سيارات البوليس
-                </Text>
+                <Text style={{ paddingRight: 2 }}>حاجبات الشمس</Text>
               </View>
               <View
                 style={{
@@ -1148,9 +183,10 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>D</Text>
+                <Text>27</Text>
               </View>
             </View>
+
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
               <View
                 style={{
@@ -1162,7 +198,7 @@ const PageTwo = () => {
                 }}
               >
                 <Text style={{ paddingRight: 2, fontWeight: "medium" }}>
-                  الفحص الخارجي
+                  الفحص السفلي
                 </Text>
               </View>
             </View>
@@ -1176,7 +212,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("ballJoints")}</Text>
               </View>
               <View
                 style={{
@@ -1188,7 +224,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>لون المركبة</Text>
+                <Text style={{ paddingRight: 2 }}>
+                  الوصلات الكرويه لنظام التوجية
+                </Text>
               </View>
               <View
                 style={{
@@ -1200,7 +238,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>1</Text>
+                <Text>28</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1213,44 +251,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}>الرقم المميز للمركبة</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>2</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
+                <Text>{result("mountingBase")}</Text>
               </View>
               <View
                 style={{
@@ -1264,7 +265,7 @@ const PageTwo = () => {
               >
                 <Text style={{ paddingRight: 2 }}>
                   {" "}
-                  اللوحات المعدنية للمركبة{" "}
+                  قاعدة تركيب صندوق تروس عجله القياده{" "}
                 </Text>
               </View>
               <View
@@ -1277,7 +278,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>3</Text>
+                <Text>29</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1290,44 +291,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}>نقاط التثبيت للمركبة</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>4</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
+                <Text>{result("steeringCircuit")}</Text>
               </View>
               <View
                 style={{
@@ -1340,7 +304,7 @@ const PageTwo = () => {
                 }}
               >
                 <Text style={{ paddingRight: 2 }}>
-                  الاسطوانات الرئيسية للفرامل وخزان سائل الفرامل
+                  دائرة التوجية الهيدروليكية
                 </Text>
               </View>
               <View
@@ -1353,7 +317,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>5</Text>
+                <Text>30</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1366,7 +330,155 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("steeringRods")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}> مجموعة اذرعة التوجية</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>31</Text>
+              </View>
+            </View>
+            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("hosesPipes")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}>خراطيم -انابيب -وصلات</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>32</Text>
+              </View>
+            </View>
+            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("brakeDiscs")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}>اقراص الفرامل والهوبات</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>33</Text>
+              </View>
+            </View>
+            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("brakeCylinders")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}> اسطوانة نظام الفرامل </Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>34</Text>
+              </View>
+            </View>
+            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("fittings")}</Text>
               </View>
               <View
                 style={{
@@ -1379,7 +491,8 @@ const PageTwo = () => {
                 }}
               >
                 <Text style={{ paddingRight: 2 }}>
-                  حالة الضفيرة والنظام الكهربائي والبطارية{" "}
+                  {" "}
+                  تجهيزات الفرامل الهوائية{" "}
                 </Text>
               </View>
               <View
@@ -1392,7 +505,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>6</Text>
+                <Text>35</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1405,7 +518,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("stabilizerBar")}</Text>
               </View>
               <View
                 style={{
@@ -1417,7 +530,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> عمود التوازن وجلبه </Text>
               </View>
               <View
                 style={{
@@ -1429,7 +542,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>36</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1442,7 +555,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("frontSuspension")}</Text>
               </View>
               <View
                 style={{
@@ -1454,7 +567,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> نظام التعليق الامامي </Text>
               </View>
               <View
                 style={{
@@ -1466,7 +579,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>37</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1479,7 +592,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("rearSuspension")}</Text>
               </View>
               <View
                 style={{
@@ -1491,7 +604,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> نظام التعليق الخلفي </Text>
               </View>
               <View
                 style={{
@@ -1503,7 +616,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>38</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1516,7 +629,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("frontSprings")}</Text>
               </View>
               <View
                 style={{
@@ -1528,7 +641,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>النوابض الامامية </Text>
               </View>
               <View
                 style={{
@@ -1540,7 +653,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>39</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1553,7 +666,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("rearSprings")}</Text>
               </View>
               <View
                 style={{
@@ -1565,7 +678,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>النوابض الخلفية </Text>
               </View>
               <View
                 style={{
@@ -1577,7 +690,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>40</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1590,7 +703,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("tires")}</Text>
               </View>
               <View
                 style={{
@@ -1602,7 +715,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> الاطارات والجنوط </Text>
               </View>
               <View
                 style={{
@@ -1614,7 +727,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>41</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1627,7 +740,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("shockAbsorbers")}</Text>
               </View>
               <View
                 style={{
@@ -1639,7 +752,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  ممتص الصدمات- المساعدات{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1651,7 +766,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>42</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1664,7 +779,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("engineMountings")}</Text>
               </View>
               <View
                 style={{
@@ -1676,7 +791,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  قواعد المحرك كراسي المكينه{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1688,7 +806,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>43</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1701,7 +819,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("reverseLights")}</Text>
               </View>
               <View
                 style={{
@@ -1713,7 +831,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>انوار السير الخلفية </Text>
               </View>
               <View
                 style={{
@@ -1725,7 +843,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>44</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1738,7 +856,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("transimissionParts")}</Text>
               </View>
               <View
                 style={{
@@ -1750,7 +868,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  اجزاء ناقل الحركة عمود الكردان عمودالدوران{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1762,7 +883,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>45</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1775,7 +896,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("reverseLights")}</Text>
               </View>
               <View
                 style={{
@@ -1787,7 +908,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>انوار الرجوع الي الخلف </Text>
               </View>
               <View
                 style={{
@@ -1799,7 +920,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>46</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1812,7 +933,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("fuelTank")}</Text>
               </View>
               <View
                 style={{
@@ -1824,7 +945,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  خزان الوقود وخطوط التوصيل للوقود{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1836,7 +960,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>47</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1849,7 +973,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("speedometerCable")}</Text>
               </View>
               <View
                 style={{
@@ -1861,7 +985,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> سلك عداد السرعة </Text>
               </View>
               <View
                 style={{
@@ -1873,7 +997,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>48</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1886,7 +1010,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("chassis")}</Text>
               </View>
               <View
                 style={{
@@ -1898,7 +1022,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  الهيكل الشاسيه والجسور والقواطع{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1910,7 +1037,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>49</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1923,7 +1050,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("floorRust")}</Text>
               </View>
               <View
                 style={{
@@ -1935,7 +1062,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  الصدأ والتآكل بأرضية المركبة
+                </Text>
               </View>
               <View
                 style={{
@@ -1947,7 +1076,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>50</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -1960,7 +1089,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("oilLeaks")}</Text>
               </View>
               <View
                 style={{
@@ -1972,7 +1101,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  تهريب الزيوت بأسفل المركبة{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -1984,81 +1116,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>7</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>7</Text>
+                <Text>51</Text>
               </View>
             </View>
           </View>
@@ -2097,7 +1155,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("conformityCertificate")}</Text>
               </View>
               <View
                 style={{
@@ -2134,7 +1192,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("isTaxi")}</Text>
               </View>
               <View
                 style={{
@@ -2173,7 +1231,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("isSalvage")}</Text>
               </View>
               <View
                 style={{
@@ -2212,7 +1270,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("isPolice")}</Text>
               </View>
               <View
                 style={{
@@ -2246,6 +1304,43 @@ const PageTwo = () => {
                 style={{
                   border: "1px solid gray",
                   borderTop: 0,
+                  flex: 2,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>{result("fuelEconomy")}</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 7,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Text style={{ paddingRight: 2 }}>كفاءة استهلاك الوقود</Text>
+              </View>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
+                  flex: 1,
+                  borderLeft: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text>E</Text>
+              </View>
+            </View>
+            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
+              <View
+                style={{
+                  border: "1px solid gray",
+                  borderTop: 0,
                   flex: 1,
                   justifyContent: "center",
                   alignItems: "center",
@@ -2266,7 +1361,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("vehiclePaint")}</Text>
               </View>
               <View
                 style={{
@@ -2303,7 +1398,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("vehicleChassis")}</Text>
               </View>
               <View
                 style={{
@@ -2340,7 +1435,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("vehiclePlate")}</Text>
               </View>
               <View
                 style={{
@@ -2380,7 +1475,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("installationPoints")}</Text>
               </View>
               <View
                 style={{
@@ -2417,7 +1512,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("brakeSystem")}</Text>
               </View>
               <View
                 style={{
@@ -2456,7 +1551,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("wiringSystem")}</Text>
               </View>
               <View
                 style={{
@@ -2495,7 +1590,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("headLights")}</Text>
               </View>
               <View
                 style={{
@@ -2532,7 +1627,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("parkingLights")}</Text>
               </View>
               <View
                 style={{
@@ -2544,7 +1639,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}> انوار الانتظار </Text>
               </View>
               <View
                 style={{
@@ -2556,7 +1651,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>8</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2569,7 +1664,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("signalLights")}</Text>
               </View>
               <View
                 style={{
@@ -2581,7 +1676,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  انوار الاشارات الامامية والجانبية{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -2593,7 +1690,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>9</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2606,7 +1703,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("warningLights")}</Text>
               </View>
               <View
                 style={{
@@ -2618,7 +1715,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>انوار التوقف المفاجئ </Text>
               </View>
               <View
                 style={{
@@ -2630,7 +1727,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>10</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2643,7 +1740,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("horn")}</Text>
               </View>
               <View
                 style={{
@@ -2655,7 +1752,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  اداة التنبية الصوتي البوق
+                </Text>
               </View>
               <View
                 style={{
@@ -2667,7 +1766,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>11</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2680,7 +1779,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("windshield")}</Text>
               </View>
               <View
                 style={{
@@ -2692,7 +1791,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>زجاج المركبة</Text>
               </View>
               <View
                 style={{
@@ -2704,7 +1803,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>12</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2717,7 +1816,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("wipers")}</Text>
               </View>
               <View
                 style={{
@@ -2729,7 +1828,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  مساحات وغسيل الزجاج الخلفي والامامي{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -2741,7 +1842,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>13</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2754,7 +1855,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("tinting")}</Text>
               </View>
               <View
                 style={{
@@ -2766,7 +1867,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  التظليل والتعتيم الامامي والخلفي وزجاج الابواب
+                </Text>
               </View>
               <View
                 style={{
@@ -2778,7 +1881,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>14</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2791,7 +1894,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("mirrors")}</Text>
               </View>
               <View
                 style={{
@@ -2803,7 +1906,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  مرايا الرؤية الجانبية والمراءه الداخليه{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -2815,7 +1920,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>15</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2828,7 +1933,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("doors")}</Text>
               </View>
               <View
                 style={{
@@ -2840,7 +1945,9 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  الابواب ومفصلاتها وغطاء المحرك{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -2852,7 +1959,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>16</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2865,7 +1972,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("tires")}</Text>
               </View>
               <View
                 style={{
@@ -2877,7 +1984,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>الاطارات </Text>
               </View>
               <View
                 style={{
@@ -2889,7 +1996,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>17</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2902,7 +2009,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("nuts")}</Text>
               </View>
               <View
                 style={{
@@ -2914,7 +2021,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>العجلات وصواميلها </Text>
               </View>
               <View
                 style={{
@@ -2926,7 +2033,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>18</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2939,7 +2046,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("dashboardLights")}</Text>
               </View>
               <View
                 style={{
@@ -2951,7 +2058,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>مؤشرات لوحة القيادة </Text>
               </View>
               <View
                 style={{
@@ -2963,7 +2070,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>19</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -2976,7 +2083,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("doors")}</Text>
               </View>
               <View
                 style={{
@@ -2988,7 +2095,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>الابواب ووسائل الامان </Text>
               </View>
               <View
                 style={{
@@ -3000,7 +2107,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>20</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -3013,7 +2120,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("tailLights")}</Text>
               </View>
               <View
                 style={{
@@ -3025,7 +2132,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>انوار السير للخلف </Text>
               </View>
               <View
                 style={{
@@ -3037,7 +2144,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>21</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -3050,7 +2157,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("turnSignalLights")}</Text>
               </View>
               <View
                 style={{
@@ -3062,7 +2169,10 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>
+                  {" "}
+                  انوار اشارات الدوران الخلفية{" "}
+                </Text>
               </View>
               <View
                 style={{
@@ -3074,7 +2184,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
+                <Text>22</Text>
               </View>
             </View>
             <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
@@ -3087,7 +2197,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>Pass</Text>
+                <Text>{result("brakeLights")}</Text>
               </View>
               <View
                 style={{
@@ -3099,7 +2209,7 @@ const PageTwo = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
+                <Text style={{ paddingRight: 2 }}>انوار الفرامل </Text>
               </View>
               <View
                 style={{
@@ -3111,44 +2221,7 @@ const PageTwo = () => {
                   alignItems: "center",
                 }}
               >
-                <Text>7</Text>
-              </View>
-            </View>
-            <View style={{ height: 15, display: "flex", flexDirection: "row" }}>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 2,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>Pass</Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 7,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Text style={{ paddingRight: 2 }}>الانوار الامامية </Text>
-              </View>
-              <View
-                style={{
-                  border: "1px solid gray",
-                  borderTop: 0,
-                  flex: 1,
-                  borderLeft: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Text>7</Text>
+                <Text>23</Text>
               </View>
             </View>
           </View>
@@ -3160,17 +2233,25 @@ const PageTwo = () => {
           marginTop: 20,
           height: 80,
           display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "flex-end",
+          paddingHorizontal: 10,
         }}
       >
-        <Text style={{}}>ملاحظات</Text>
+        <Text
+          style={{
+            fontSize: 12,
+            fontWeight: "medium",
+          }}
+        >
+          ملاحظات
+        </Text>
+        <Text style={{ fontSize: 10, fontWeight: "normal" }}>{"text "}</Text>
+        <Text style={{ fontSize: 10, fontWeight: "normal" }}>{"text "}</Text>
+        <Text style={{ fontSize: 10, fontWeight: "normal" }}>{"text "}</Text>
       </View>
     </View>
   );
 };
 
-// TODO: Extract styles
-// TODO: page3
-
-const PageThree = () => {
-  return <Text>Page three</Text>;
-};
+export default PageTwo;

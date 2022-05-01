@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getSuspensionResult } from "../utils";
 import Indicator from "./Indicator";
 
 const initialState = {
@@ -23,6 +24,7 @@ const SuspensionCreateForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const suspensionResult = getSuspensionResult(suspension);
     const { fr, fl, rl, rr } = suspension;
     if (!fr || !fl || !rl || !rr) {
       toast.error("please provide all the fields");
@@ -33,6 +35,7 @@ const SuspensionCreateForm = ({ vehicle }) => {
       const { data } = await axios.post("/api/suspension", {
         vehicleId: Number(id),
         ...suspension,
+        result: suspensionResult,
       });
       router.push(`/vehicles/${id}/result`);
       toast.success(`Suspension  result has been saved`);

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getSideSlipResult } from "../utils";
 import Indicator from "./Indicator";
 
 const SideSlipEditForm = ({ vehicle }) => {
@@ -12,7 +13,8 @@ const SideSlipEditForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (sideSlip.result === null || sideSlip.result === "") {
+    const sideSlipResult = getSideSlipResult(sideSlip);
+    if (sideSlip.reading === null || sideSlip.reading === "") {
       toast.error("Please enter a valid result");
       return;
     }
@@ -20,6 +22,7 @@ const SideSlipEditForm = ({ vehicle }) => {
     try {
       const { data } = await axios.put(`/api/sideSlip/${sideSlip.id}`, {
         ...sideSlip,
+        result: sideSlipResult,
         vehicleId: Number(id),
       });
       router.push(`/vehicles/${id}/result`);
@@ -75,20 +78,20 @@ const SideSlipEditForm = ({ vehicle }) => {
               <td className="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-900 dark:text-white">
                 <input
                   type="number"
-                  name="result"
-                  value={sideSlip.result || ""}
+                  name="reading"
+                  value={sideSlip.reading || ""}
                   onChange={(e) =>
                     setSideSlip({
                       ...sideSlip,
-                      result: parseFloat(e.target.value),
+                      reading: parseFloat(e.target.value),
                     })
                   }
-                  id="result"
+                  id="reading"
                   className=" mt-1 block w-full rounded-md border-gray-300 text-gray-700 shadow-sm focus:border-blue-700 focus:ring-blue-700 sm:text-sm"
                 />
               </td>
               <td className="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-900 dark:text-white">
-                <Indicator value={sideSlip.result <= testLimits.sideSlip} />
+                <Indicator value={sideSlip.reading <= testLimits.sideSlip} />
               </td>
             </tr>
           </tbody>

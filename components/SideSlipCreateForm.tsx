@@ -3,16 +3,19 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getSideSlipResult } from "../utils";
 import Indicator from "./Indicator";
 
 const SideSlipCreateForm = ({ vehicle }) => {
   const router = useRouter();
   const { id } = router.query;
-  const [result, setResult] = useState<any>(null);
+  const [reading, setReading] = useState<any>(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (result === null || result === "") {
+    const sideSlipResult = getSideSlipResult({ reading });
+
+    if (reading === null || reading === "") {
       toast.error("Please enter a valid result");
       return;
     }
@@ -20,7 +23,8 @@ const SideSlipCreateForm = ({ vehicle }) => {
     try {
       const { data } = await axios.post("/api/sideSlip", {
         vehicleId: Number(id),
-        result,
+        reading,
+        result: sideSlipResult,
       });
       router.push(`/vehicles/${id}/result`);
       toast.success(`SideSlip  result has been saved`);
@@ -75,15 +79,15 @@ const SideSlipCreateForm = ({ vehicle }) => {
               <td className="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-900 dark:text-white">
                 <input
                   type="number"
-                  name="result"
-                  value={result || ""}
-                  onChange={(e) => setResult(parseFloat(e.target.value))}
-                  id="result"
+                  name="reading"
+                  value={reading || ""}
+                  onChange={(e) => setReading(parseFloat(e.target.value))}
+                  id="reading"
                   className=" mt-1 block w-full rounded-md border-gray-300 text-gray-700 shadow-sm focus:border-blue-700 focus:ring-blue-700 sm:text-sm"
                 />
               </td>
               <td className="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-900 dark:text-white">
-                <Indicator value={result <= testLimits.sideSlip} />
+                <Indicator value={reading <= testLimits.sideSlip} />
               </td>
             </tr>
           </tbody>

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getHighBeamResult } from "../utils";
 import Indicator from "./Indicator";
 const initialState = {
   level: null,
@@ -21,6 +22,8 @@ const HighBeamCreateForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const highBeamLevelResult = getHighBeamResult(highBeam);
+
     const { left, right } = highBeam;
     if (!left || !right) {
       toast.error("please provide all the fields");
@@ -30,6 +33,7 @@ const HighBeamCreateForm = ({ vehicle }) => {
     try {
       const { data } = await axios.post("/api/highBeamLevel", {
         ...highBeam,
+        result: highBeamLevelResult,
         vehicleId: Number(id),
       });
       router.push(`/vehicles/${id}/result`);

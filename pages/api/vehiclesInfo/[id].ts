@@ -66,7 +66,16 @@ export default async function handler(
       const updatedVehicleInfo = await prisma.vehicleInfo.update({
         where: { id: Number(id) },
         data: {
-          ...req.body,
+          seats,
+          colorId,
+          year,
+          vehicleTypeId,
+          category,
+          condition,
+          engineSize,
+          fuelType,
+          mileage,
+          // ...req.body,
         },
       });
       res.status(200).json(updatedVehicleInfo);
@@ -74,8 +83,6 @@ export default async function handler(
       console.log(error);
       return res.status(500).json({ message: error?.message });
     }
-
-    //fallback for other methods
   } else if (req.method === "DELETE") {
     try {
       const vehicleInfo = await prisma.vehicleInfo.findUnique({

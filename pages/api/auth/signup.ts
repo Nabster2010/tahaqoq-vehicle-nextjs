@@ -32,6 +32,7 @@ export default async function handler(
       data: {
         email,
         password: hashedPassword,
+        name,
       },
     });
     //Send success response

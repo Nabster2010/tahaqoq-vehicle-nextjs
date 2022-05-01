@@ -105,29 +105,6 @@ const ReportsList = () => {
                 </select>
               </div>
             </div>
-            <div className="p-4 pt-0 md:pt-4">
-              <button
-                type="button"
-                onClick={() => router.push("/vehicles/create")}
-                className="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-              >
-                New
-                <svg
-                  className="h-6 w-6 pl-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  ></path>
-                </svg>
-              </button>
-            </div>
           </div>
           <div className="overflow-hidden">
             <table className="min-w-full table-fixed divide-y divide-gray-200 dark:divide-gray-700">
@@ -211,12 +188,12 @@ const ReportsList = () => {
 
                     <td className="whitespace-nowrap py-4 px-6  text-sm font-medium">
                       <Link href={`${router.route}/${vehicle.id}/invoice`}>
-                        <a>invoice</a>
+                        <a target="_blank">invoice</a>
                       </Link>
                     </td>
                     <td className="whitespace-nowrap py-4 px-6  text-sm font-medium">
                       <Link href={`${router.route}/${vehicle.id}/report`}>
-                        <a>report</a>
+                        <a target="_blank">report</a>
                       </Link>
                     </td>
                   </tr>

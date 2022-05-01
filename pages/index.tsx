@@ -30,9 +30,9 @@ export default function Home() {
           <div className="border border-green-400 px-8 py-12">
             <p>Welcome to Tahaqoq Vehicle inspection Application</p>
             <p>
-              Loggedin user :{session.user.name} - {session.user.email}{" "}
+              Loggedin user :{session.user.name} - {session.user.email} -
+              {session.user.name}
             </p>
-            <button onClick={fetch}>test</button>
           </div>
         </div>
       </main>

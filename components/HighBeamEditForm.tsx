@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getHighBeamResult } from "../utils";
 import Indicator from "./Indicator";
 
 const HighBeamEditForm = ({ vehicle }) => {
@@ -17,16 +18,17 @@ const HighBeamEditForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const highBeamLevelResult = getHighBeamResult(highBeam);
     const { left, right } = highBeam;
     if (!left || !right) {
       toast.error("please provide all the fields");
       return;
     }
     try {
-      const { data } = await axios.put(
-        `/api/highBeamLevel/${highBeam.id}`,
-        highBeam
-      );
+      const { data } = await axios.put(`/api/highBeamLevel/${highBeam.id}`, {
+        ...highBeam,
+        result: highBeamLevelResult,
+      });
       router.push(`/vehicles/${id}/result`);
       toast.success(`HighBeam result has been saved`);
     } catch (error) {

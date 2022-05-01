@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getEmmissionResult } from "../utils";
 import Indicator from "./Indicator";
 const initialState = {
   co: null,
@@ -17,7 +18,7 @@ const EmissionTestCreateForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const emissionResult = getEmmissionResult(emission, isDiesel);
     try {
       const { diesel, co, hc } = emission;
       if ((isDiesel && !diesel) || (!isDiesel && (!co || !hc))) {
@@ -26,6 +27,7 @@ const EmissionTestCreateForm = ({ vehicle }) => {
       }
       const { data } = await axios.post("/api/emission", {
         ...emission,
+        result: emissionResult,
         vehicleId: Number(id),
       });
       router.push(`/vehicles/${id}/result`);

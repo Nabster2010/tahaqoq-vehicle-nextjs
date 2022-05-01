@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { testLimits } from "../data";
+import { getBrakeTestResult } from "../utils";
 import Indicator from "./Indicator";
 
 const initialState = {
@@ -22,6 +23,7 @@ const BrakeCreateForm = ({ vehicle }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const brakeResult = getBrakeTestResult(brake);
     const { parking, front, rear } = brake;
     if (!parking || !front || !rear) {
       toast.error("please provide all the fields");
@@ -32,6 +34,7 @@ const BrakeCreateForm = ({ vehicle }) => {
       const { data } = await axios.post("/api/brake", {
         vehicleId: Number(id),
         ...brake,
+        result: brakeResult,
       });
       router.push(`/vehicles/${id}/result`);
       toast.success(`Brake test result has been saved`);

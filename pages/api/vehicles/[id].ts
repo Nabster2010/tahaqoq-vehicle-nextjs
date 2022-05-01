@@ -16,8 +16,17 @@ export default async function handler(
       const vehicle = await prisma.vehicle.findUnique({
         where: { id: Number(id) },
         include: {
+          vehicleInfo: {
+            include: {
+              color: true,
+              vehicleType: {
+                include: {
+                  manufacturer: true,
+                },
+              },
+            },
+          },
           customer: true,
-          vehicleInfo: true,
           visualInspection: true,
           emissionTest: true,
           highBeamLevel: true,

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import prisma from "../../../lib/prisma";
+import { getVisualInspectionResult } from "../../../utils";
 
 export default async function handler(
   req: NextApiRequest,
@@ -40,6 +41,7 @@ export default async function handler(
         where: { id: Number(id) },
         data: {
           ...req.body,
+          result: getVisualInspectionResult(req.body),
         },
       });
       res.status(200).json(updatedVisualInspection);
