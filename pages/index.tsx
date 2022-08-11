@@ -30,9 +30,10 @@ export default function Home() {
           <div className="border border-green-400 px-8 py-12">
             <p>Welcome to Tahaqoq Vehicle inspection Application</p>
             <p>
-              Loggedin user :{session.user.name} - {session.user.email} -
-              {session.user.name}
+              Loggedin user :{session?.user?.name} - {session?.user?.email} -
+              {session?.user?.name}
             </p>
+            <p>ROLE : {session?.user?.role}</p>
           </div>
         </div>
       </main>

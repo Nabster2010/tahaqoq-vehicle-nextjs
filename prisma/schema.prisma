@@ -274,7 +274,7 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime?
-  role          String? @default("USER")
+  role          String? @default("GUEST")
   password      String?
   active        Boolean? @default(false)
   image         String?

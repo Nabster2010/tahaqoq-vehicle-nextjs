@@ -7,8 +7,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ message: "Not authenticated" });
+  if (!session || session.user.role === "GUEST") {
+    return res
+      .status(401)
+      .json({ message: "Not authenticated or not Authorized" });
   }
   const { id } = req.query;
   if (req.method === "GET") {
@@ -105,6 +107,9 @@ export default async function handler(
 
     //fallback for other methods
   } else if (req.method === "DELETE") {
+    if (session.user?.role !== "ADMIN") {
+      return res.status(401).json({ message: "Not authorized" });
+    }
     try {
       const vehicle = await prisma.vehicle.findUnique({
         where: { id: Number(id) },

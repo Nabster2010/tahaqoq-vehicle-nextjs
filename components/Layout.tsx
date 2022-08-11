@@ -13,6 +13,7 @@ const Layout = ({ children }) => {
   if (!session) {
     signIn();
   }
+
   const isReportPage = router.pathname.startsWith("/reports/[id]");
   if (isReportPage) return <ReportLayout>{children}</ReportLayout>;
   return (

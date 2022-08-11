@@ -7,8 +7,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ message: "Not authenticated" });
+  if (!session || session.user.role === "GUEST") {
+    return res
+      .status(401)
+      .json({ message: "Not authenticated or not Authorized" });
   }
   if (req.method === "GET") {
     try {
@@ -28,12 +30,10 @@ export default async function handler(
       } else {
         const manufacturers = await prisma.vehicleManufacture.findMany();
 
-        res
-          .status(200)
-          .json({
-            manufacturers,
-            meta: { page: 1, size: manufacturers.length, totalPages: 1 },
-          });
+        res.status(200).json({
+          manufacturers,
+          meta: { page: 1, size: manufacturers.length, totalPages: 1 },
+        });
       }
     } catch (error) {
       console.log(error);

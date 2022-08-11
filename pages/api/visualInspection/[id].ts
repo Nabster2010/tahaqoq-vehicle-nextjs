@@ -8,8 +8,10 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const session = await getSession({ req });
-  if (!session) {
-    return res.status(401).json({ message: "Not authenticated" });
+  if (!session || session.user.role === "GUEST") {
+    return res
+      .status(401)
+      .json({ message: "Not authenticated or not Authorized" });
   }
   const { id } = req.query;
   if (req.method === "GET") {
